@@ -88,7 +88,7 @@ int main(void)
 	scanf("%[^\n]s",plaintext);
 	memcpy(op.params[0].tmpref.buffer, plaintext, len);
 
-	res = TEEC_InvokeCommand(&sess, TA_MYTA_CMD_ENC_VALUE, &op,
+	res = TEEC_InvokeCommand(&sess, TA_TEEencrypt_ENCRYPT, &op,
 				 &err_origin);
 	if (res != TEEC_SUCCESS)
 		errx(1, "TEEC_InvokeCommand failed with code 0x%x origin 0x%x",
@@ -103,7 +103,7 @@ int main(void)
 	scanf("%[^\n]s",ciphertext);
 
 	memcpy(op.params[0].tmpref.buffer, ciphertext, len);
-	res = TEEC_InvokeCommand(&sess, TA_MYTA_CMD_DEC_VALUE, &op,
+	res = TEEC_InvokeCommand(&sess, TA_TEEencrypt_DECRYPT, &op,
 				 &err_origin);
 	if (res != TEEC_SUCCESS)
 		errx(1, "TEEC_InvokeCommand failed with code 0x%x origin 0x%x",
