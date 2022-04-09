@@ -93,7 +93,7 @@ void TA_CloseSessionEntryPoint(void __maybe_unused *sess_ctx)
    (void)&sess_ctx; /* Unused parameter */
 }
 
-static TEE_Result enc_value(uint32_t param_types,
+static TEE_Result encrypt(uint32_t param_types,
    TEE_Param params[4])
 {
    char * in = (char *)params[0].memref.buffer;
@@ -124,7 +124,7 @@ static TEE_Result enc_value(uint32_t param_types,
    return TEE_SUCCESS;
 }
 
-static TEE_Result dec_value(uint32_t param_types,
+static TEE_Result decrypt(uint32_t param_types,
    TEE_Param params[4])
 {
    char * in = (char *)params[0].memref.buffer;
@@ -168,10 +168,10 @@ TEE_Result TA_InvokeCommandEntryPoint(void __maybe_unused *sess_ctx,
    (void)&sess_ctx; /* Unused parameter */
    key = 3;
    switch (cmd_id) {
-   case TA_MYTA_CMD_ENC_VALUE:
-      return enc_value(param_types, params);
-   case TA_MYTA_CMD_DEC_VALUE:
-      return dec_value(param_types, params);
+   case TA_MYTA_CMD_ENCRYPT:
+      return encrypt(param_types, params);
+   case TA_MYTA_CMD_DECRYPT:
+      return decrypt(param_types, params);
    default:
       return TEE_ERROR_BAD_PARAMETERS;
    }
