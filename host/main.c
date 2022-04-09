@@ -44,6 +44,10 @@ int main(void)
 	TEEC_UUID uuid = TA_TEEencrypt_UUID;
 	uint32_t err_origin;
 
+	char plaintext[64] = {0,}; // input text 받을 array
+	char ciphertext[64] = {0,}; // encrypt 된 text 저장할 array
+	int len = 64; // array length
+	
 	/* Initialize a context connecting us to the TEE */
 	res = TEEC_InitializeContext(NULL, &ctx);
 	if (res != TEEC_SUCCESS)
@@ -74,29 +78,38 @@ int main(void)
 	 * Prepare the argument. Pass a value in the first parameter,
 	 * the remaining three parameters are unused.
 	 */
-	op.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INOUT, TEEC_NONE,
+    op.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_OUTPUT, TEEC_NONE,
 					 TEEC_NONE, TEEC_NONE);
-	op.params[0].value.a = 42;
+	op.params[0].tmpref.buffer = plaintext;
+	op.params[0].tmpref.size = len;
 
-	/*
-	 * TA_HELLO_WORLD_CMD_INC_VALUE is the actual function in the TA to be
-	 * called.
-	 */
-	printf("Invoking TA to increment %d\n", op.params[0].value.a);
-	res = TEEC_InvokeCommand(&sess, TA_TEEencrypt_CMD_INC_VALUE, &op,
+	printf("========================Encryption========================\n");
+	printf("Please Input Plaintext : ");
+	scanf("%[^\n]s",plaintext);
+	memcpy(op.params[0].tmpref.buffer, plaintext, len);
+
+	res = TEEC_InvokeCommand(&sess, TA_MYTA_CMD_ENC_VALUE, &op,
 				 &err_origin);
 	if (res != TEEC_SUCCESS)
 		errx(1, "TEEC_InvokeCommand failed with code 0x%x origin 0x%x",
 			res, err_origin);
-	printf("TA incremented value to %d\n", op.params[0].value.a);
 
-	/*
-	 * We're done with the TA, close the session and
-	 * destroy the context.
-	 *
-	 * The TA will print "Goodbye!" in the log when the
-	 * session is closed.
-	 */
+	memcpy(ciphertext, op.params[0].tmpref.buffer, len);
+	printf("Ciphertext : %s\n", ciphertext);
+
+	printf("========================Decryption========================\n");
+	printf("Please Input Ciphertext : ");
+	getchar();
+	scanf("%[^\n]s",ciphertext);
+
+	memcpy(op.params[0].tmpref.buffer, ciphertext, len);
+	res = TEEC_InvokeCommand(&sess, TA_MYTA_CMD_DEC_VALUE, &op,
+				 &err_origin);
+	if (res != TEEC_SUCCESS)
+		errx(1, "TEEC_InvokeCommand failed with code 0x%x origin 0x%x",
+			res, err_origin);
+	memcpy(plaintext, op.params[0].tmpref.buffer, len);
+	printf("Plaintext : %s\n", plaintext);
 
 	TEEC_CloseSession(&sess);
 
