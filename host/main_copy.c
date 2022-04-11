@@ -35,17 +35,21 @@
 /* To the the UUID (found the the TA's h-file(s)) */
 #include <TEEencrypt_ta.h>
 
+char context_file_name[20];
+char option[10];
+char context_file_input_buffer[100];
+
 int main(int argc, char *argv[]) /* Arguemnt 받도록 변경하면 TEE 환경에서 TEEencrypt로 해당 바이너리 파일을 실행했을 때
 Argument 들이 잘 넘어오는지 확인해야함. */
 {
+	
+		
 
-	// Argument 제대로 들어오는지 확인
-	
-	for (int i=0; i<argc; i++){
-		printf("arv[%d]: %s\n", i, argv[i]);
-	}
-	
-	// Arguemnt 에 따라서 option 분류
+
+
+
+	// 
+
 
 	TEEC_Result res;
 	TEEC_Context ctx;
@@ -56,8 +60,36 @@ Argument 들이 잘 넘어오는지 확인해야함. */
 
 	char plaintext[64] = {0,}; // input text 받을 array
 	char ciphertext[64] = {0,}; // encrypt 된 text 저장할 array
-	int len = 64; // array length
+	//int len = 64; // array length
+	int len = 100;
+
+	// Argument 제대로 들어오는지 확인
 	
+	for (int i=0; i<argc; i++){
+		printf("[DEBUG] arv[%d]: %s\n", i, argv[i]);
+	}
+
+	// Argument Initializng
+	if (argc >= 3){
+		strcpy(option,argv[1]);
+		strcpy(context_file_name, argv[2]);
+	}
+
+	// Arguemnt 에 따라서 option 분류	
+	if (strcmp(option, "-e") == 0){
+		fs = fopen(context_file_name, "r");
+		fgets(context_file_input_buffer,sizeof(context_file_input_buffer,fs);
+		printf("[DEBUG] This is Encrypt Part\n");
+	}	 
+	if (strcmp(option, "-d") == 0){
+		fs = fopen(context_file_name, "r");
+		fgets(context_file_input_buffer,sizeof(context_file_input_buffer,fs);
+		printf("[DEBUG] This is Decrypt Part\n");	
+	}
+	
+
+
+
 	/* Initialize a context connecting us to the TEE */
 	res = TEEC_InitializeContext(NULL, &ctx);
 	if (res != TEEC_SUCCESS)
@@ -90,14 +122,17 @@ Argument 들이 잘 넘어오는지 확인해야함. */
 	 */
     op.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_TEMP_OUTPUT, TEEC_NONE,
 					 TEEC_NONE, TEEC_NONE);
-	op.params[0].tmpref.buffer = plaintext;
+	//op.params[0].tmpref.buffer = plaintext;
+	op.params[0].tmpref.buffer = context_file_input_buffer;
 	op.params[0].tmpref.size = len;
 
 	printf("========================Encryption========================\n");
-	printf("Please Input Plaintext : ");
-	scanf("%[^\n]s",plaintext);
+	//printf("Please Input Plaintext : ");
+	//scanf("%[^\n]s",plaintext);
 
-	memcpy(op.params[0].tmpref.buffer, plaintext, len);
+	//memcpy(op.params[0].tmpref.buffer, plaintext, len);
+	memcpy(op.params[0].tmpref.buffer, context_file_input_buffer, len);
+
 
 	res = TEEC_InvokeCommand(&sess, TA_TEEencrypt_CMD_ENCRYPT, &op,
 				 &err_origin);
@@ -109,11 +144,13 @@ Argument 들이 잘 넘어오는지 확인해야함. */
 	printf("Ciphertext : %s\n", ciphertext);
 
 	printf("========================Decryption========================\n");
-	printf("Please Input Ciphertext : ");
-	getchar();
-	scanf("%[^\n]s",ciphertext);
+	//printf("Please Input Ciphertext : ");
+	//getchar();
+	//scanf("%[^\n]s",ciphertext);
 
-	memcpy(op.params[0].tmpref.buffer, ciphertext, len);
+	//memcpy(op.params[0].tmpref.buffer, ciphertext, len);
+	memcpy(op.params[0].tmpref.buffer, context_file_input_buffer, len);
+	
 	res = TEEC_InvokeCommand(&sess, TA_TEEencrypt_CMD_DECRYPT, &op,
 				 &err_origin);
 	if (res != TEEC_SUCCESS)
@@ -121,7 +158,6 @@ Argument 들이 잘 넘어오는지 확인해야함. */
 			res, err_origin);
 	memcpy(plaintext, op.params[0].tmpref.buffer, len);
 	printf("Plaintext : %s\n", plaintext);
-
 	TEEC_CloseSession(&sess);
 
 	TEEC_FinalizeContext(&ctx);
