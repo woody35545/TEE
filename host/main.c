@@ -13,7 +13,7 @@ char context_file_input_buffer[100];
 int main(int argc, char *argv[]) /* Arguemnt 받도록 변경하면 TEE 환경에서 TEEencrypt로 해당 바이너리 파일을 실행했을 때
 Argument 들이 잘 넘어오는지 확인해야함. */
 {
-
+	FILE* fs;
 	TEEC_Result res;
 	TEEC_Context ctx;
 	TEEC_Session sess;
