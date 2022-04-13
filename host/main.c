@@ -89,7 +89,7 @@ Argument 들이 잘 넘어오는지 확인해야함. */
 
 	if (strcmp(option, "-d") == 0){
 		fs = fopen(context_file_name, "r");
-		fgets(context_file_input_buffer,sizeof(context_file_input_buffer,fs);
+		fgets(context_file_input_buffer,sizeof(context_file_input_buffer),fs);
 		printf("[DEBUG] This is Decrypt Part\n");	
 	
 		
