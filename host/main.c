@@ -68,7 +68,7 @@ Argument 들이 잘 넘어오는지 확인해야함. */
 	// Arguemnt 에 따라서 option 분류	
 	if (strcmp(option, "-e") == 0){
 		fs = fopen(context_file_name, "r");
-		fgets(context_file_input_buffer,sizeof(context_file_input_buffer,fs);
+		fgets(context_file_input_buffer,sizeof(context_file_input_buffer),fs);
 		printf("[DEBUG] This is Encrypt Part\n");
 		
 		/* Request TA to Encrypt */
